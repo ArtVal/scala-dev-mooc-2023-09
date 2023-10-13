@@ -326,7 +326,7 @@ object list {
     @tailrec
     def recReverse(list: List[T], ac: List[T]): List[T] = {
       list match {
-        case Cons(head, tail) => recReverse(tail, Cons(head, ac))
+        case Cons(head, tail) => recReverse(tail, cons(head, ac))
         case Nil => ac
       }
     }
@@ -344,7 +344,7 @@ object list {
     @tailrec
     def mapList(list: List[A], ac: List[B]): List[B] = {
       list match {
-        case Cons(head, tail) => mapList(tail, Cons(fn(head), ac))
+        case Cons(head, tail) => mapList(tail, cons(fn(head), ac))
         case Nil => ac
       }
     }
@@ -363,7 +363,7 @@ object list {
     @tailrec
     def filterList(list: List[T], ac: List[T]): List[T] = {
       list match {
-        case Cons(head, tail) => filterList(tail, if (fn(head)) Cons(head, ac) else ac)
+        case Cons(head, tail) => filterList(tail, if (fn(head)) cons(head, ac) else ac)
         case Nil => reverse(ac)
       }
     }
