@@ -244,8 +244,8 @@ object opt {
    * в случае если исходный не пуст и предикат от значения = true
    */
 
-  def filter[T](maBeValue: Option[T], predicat: T => Boolean): Option[T] =
-    maBeValue.flatMap(value => if (predicat(value)) Some(value) else None)
+  def filter[T](mayBeValue: Option[T], predicat: T => Boolean): Option[T] =
+    mayBeValue.flatMap(value => if (predicat(value)) Some(value) else None)
 }
 
 object list {
@@ -294,6 +294,7 @@ object list {
    */
 
   def mkString[T](list: List[T], sep: String): String = {
+
     @tailrec
     def makeString(list: List[T], ac: String): String = {
       list match {
@@ -339,6 +340,7 @@ object list {
    */
 
   def map[A, B](list: List[A], fn: A => B): List[B] = {
+
     @tailrec
     def mapList(list: List[A], ac: List[B]): List[B] = {
       list match {
@@ -375,7 +377,7 @@ object list {
    * где каждый элемент будет увеличен на 1
    */
 
-  def incList(list: List[Int]): List[Int] = map[Int, Int](list, num => num + 1)
+  def incList(list: List[Int]): List[Int] = map[Int, Int](list, _ + 1)
 
     /**
       *
