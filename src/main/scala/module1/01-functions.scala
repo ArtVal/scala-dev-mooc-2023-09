@@ -65,24 +65,27 @@ object functions {
    *  Задание 1. Написать ф-цию метод isEven, которая будет вычислять является ли число четным
    */
 
+  def isEven(num: Int): Boolean = num % 2 == 0
 
   /**
    * Задание 2. Написать ф-цию метод isOdd, которая будет вычислять является ли число нечетным
    */
 
+  def isOdd(num: Int): Boolean = !isEven(num)
 
   /**
    * Задание 3. Написать ф-цию метод filterEven, которая получает на вход массив чисел и возвращает массив тех из них,
    * которые являются четными
    */
 
-
+  def filterEven(nums: Array[Int]): Array[Int] = nums.filter(isEven)
 
   /**
    * Задание 4. Написать ф-цию метод filterOdd, которая получает на вход массив чисел и возвращает массив тех из них,
    * которые являются нечетными
    */
 
+  def filterOdd(nums: Array[Int]): Array[Int] = nums.filter(isOdd)
 
   /**
    * return statement
