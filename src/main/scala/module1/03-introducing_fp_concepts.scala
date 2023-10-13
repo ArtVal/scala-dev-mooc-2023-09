@@ -315,19 +315,6 @@ object list {
    * def printArgs(args: Int*) = args.foreach(println(_))
    */
 
-  def listFromArgs[T](args: T*): List[T] = {
-
-    @tailrec
-    def mkList(args: Seq[T], ac: List[T]): List[T] = {
-      args match {
-        case Seq(head, tail@_*) => mkList(tail, Cons(head, ac))
-        case Seq() => ac
-      }
-    }
-
-    mkList(args, Nil)
-  }
-
   /**
    *
    * Реализовать метод reverse который позволит заменить порядок элементов в списке на противоположный
