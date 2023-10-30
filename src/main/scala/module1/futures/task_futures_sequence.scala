@@ -24,12 +24,13 @@ object task_futures_sequence {
                      (implicit ex: ExecutionContext): Future[(List[A], List[Throwable])] = {
     val p = Promise[(List[A], List[Throwable])]
     futures.foreach(_.onComplete { _ =>
-      if(isAllComplete(futures)){
-        val finalResult = futures.foldLeft((List.empty[A], List.empty[Throwable])) { case ((results: List[A], errors: List[Throwable]), elem: Future[A]) =>
-          elem.value.map {
-            case Success(result) => (results.appended(result), errors)
-            case Failure(e) => (results, errors.appended(e))
-          }.get
+      if (isAllComplete(futures)) {
+        val finalResult = futures.foldLeft((List.empty[A], List.empty[Throwable])) {
+          case ((results: List[A], errors: List[Throwable]), elem: Future[A]) =>
+            elem.value.map {
+              case Success(result) => (results.appended(result), errors)
+              case Failure(e) => (results, errors.appended(e))
+            }.get
         }
         p.trySuccess(finalResult)
         ()
