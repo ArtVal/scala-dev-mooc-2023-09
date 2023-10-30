@@ -24,7 +24,7 @@ object task_futures_sequence {
                      (implicit ex: ExecutionContext): Future[(List[A], List[Throwable])] = {
     val p = Promise[(List[A], List[Throwable])]
     futures.foreach(_.onComplete { _ =>
-      isAllComplete(futures).collect { case true =>
+      if(isAllComplete(futures)){
         val finalResult = futures.foldLeft((List.empty[A], List.empty[Throwable])) { case ((results: List[A], errors: List[Throwable]), elem: Future[A]) =>
           elem.value.map {
             case Success(result) => (results.appended(result), errors)
@@ -36,8 +36,8 @@ object task_futures_sequence {
       }
     })
 
-    def isAllComplete(futures: List[Future[A]]): Future[Boolean] = {
-      futures.find(!_.isCompleted).map(_ => Future.successful(false)).getOrElse(Future.successful(true))
+    def isAllComplete(futures: List[Future[A]]): Boolean = {
+      futures.forall(_.isCompleted)
     }
 
     p.future
