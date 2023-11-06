@@ -1,8 +1,6 @@
 package module2
 
-import module2.type_classes.Bindable
-
-object higher_kinded_types extends App{
+object higher_kinded_types{
 
   def tuple[A, B](a: List[A], b: List[B]): List[(A, B)] =
     a.flatMap{ a => b.map((a, _))}
