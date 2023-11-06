@@ -1,5 +1,7 @@
 package module2
 
+import module2.higher_kinded_types.Bindable.BindableSyntax
+
 object higher_kinded_types{
 
   def tuple[A, B](a: List[A], b: List[B]): List[(A, B)] =
@@ -23,12 +25,12 @@ object higher_kinded_types{
 
   object Bindable {
     def apply[F[_]](implicit ev: Bindable[F]): Bindable[F] = ev
-  }
 
-  implicit class BindableSyntax[F[_], A](value: F[A]) {
+    implicit class BindableSyntax[F[_], A](value: F[A]) {
       def map[B](f: A => B)(implicit ev: Bindable[F]): F[B] = Bindable[F].map(value)(f)
 
       def flatMap[B](f: A => F[B])(implicit ev: Bindable[F]): F[B] = Bindable[F].flatMap(value)(f)
+    }
   }
 
   def tupleBindable[F[_]: Bindable, A, B](fa: F[A], fb: F[B]): F[(A, B)] =
