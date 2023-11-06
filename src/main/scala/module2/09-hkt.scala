@@ -1,6 +1,8 @@
 package module2
 
-object higher_kinded_types{
+import module2.type_classes.Bindable
+
+object higher_kinded_types extends App{
 
   def tuple[A, B](a: List[A], b: List[B]): List[(A, B)] =
     a.flatMap{ a => b.map((a, _))}
@@ -12,24 +14,40 @@ object higher_kinded_types{
     a.flatMap{ a => b.map((a, _))}
 
 
-  def tuplef[F[_] : Bindable, A, B](fa: F[A], fb: F[B]): F[(A, B)] = ???
+  def tuplef[F[_] : Bindable, A, B](fa: F[A], fb: F[B]): F[(A, B)] =
+    Bindable[F].flatMap(fa)(a => Bindable[F].map(fb)(b => (a,b)))
 
 
-  trait Bindable[F[_], A] {
-    def map[B](f: A => B): F[B]
-    def flatMap[B](f: A => F[B]): F[B]
+  trait Bindable[F[_]] {
+    def map[A, B](fa: F[A])(f: A => B): F[B]
+    def flatMap[A, B](fa: F[A])(f: A => F[B]): F[B]
   }
 
-  def tupleBindable[F[_], A, B](fa: Bindable[F, A], fb: Bindable[F, B]): F[(A, B)] =
+  object Bindable {
+    def apply[F[_]](implicit ev: Bindable[F]): Bindable[F] = ev
+  }
+
+  implicit class BindableSyntax[F[_], A](value: F[A]) {
+      def map[B](f: A => B)(implicit ev: Bindable[F]): F[B] = Bindable[F].map(value)(f)
+
+      def flatMap[B](f: A => F[B])(implicit ev: Bindable[F]): F[B] = Bindable[F].flatMap(value)(f)
+  }
+
+  def tupleBindable[F[_]: Bindable, A, B](fa: F[A], fb: F[B]): F[(A, B)] =
     fa.flatMap(a => fb.map(b => (a, b)))
 
-  def optBindable[A](opt: Option[A]): Bindable[Option, A] = new Bindable[Option, A] {
-    override def map[B](f: A => B): Option[B] = opt.map(f)
+  implicit val optBindable: Bindable[Option] = new Bindable[Option] {
 
-    override def flatMap[B](f: A => Option[B]): Option[B] = opt.flatMap(f)
+    override def map[A, B](fa: Option[A])(f: A => B): Option[B] = fa.map(f)
+
+    override def flatMap[A, B](fa: Option[A])(f: A => Option[B]): Option[B] = fa.flatMap(f)
   }
 
-  def listBindable[A](list: List[A]): Bindable[List, A] = ???
+  implicit val listBindable: Bindable[List] = new Bindable[List] {
+    override def map[A, B](fa: List[A])(f: A => B): List[B] = fa.map(f)
+
+    override def flatMap[A, B](fa: List[A])(f: A => List[B]): List[B] = fa.flatMap(f)
+  }
 
 
 
@@ -40,11 +58,11 @@ object higher_kinded_types{
   val list1 = List(1, 2, 3)
   val list2 = List(4, 5, 6)
 
-  val r3: Option[(Int, Int)] = tupleBindable(optBindable(optA), optBindable(optB))
-  val r4 = println(tupleBindable(listBindable(list1), listBindable(list2)))
+  val r3: Option[(Int, Int)] = tupleBindable(optA, optB)
+  val r4 = println(tupleBindable(list1, list2))
 
 
-  lazy val r1 = println(tuplef(optA, optB))
-  lazy val r2 = println(tuplef(list1, list2))
+  val r1 = println(tuplef(optA, optB))
+  val r2 = println(tuplef(list1, list2))
 
 }
