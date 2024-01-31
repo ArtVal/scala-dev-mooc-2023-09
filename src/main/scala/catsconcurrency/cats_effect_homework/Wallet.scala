@@ -2,7 +2,10 @@ package catsconcurrency.cats_effect_homework
 
 import cats.effect.Sync
 import cats.implicits._
-import Wallet._
+import Wallet.{WalletError, _}
+
+import java.nio.file._
+import scala.util.Try
 
 // DSL управления электронным кошельком
 trait Wallet[F[_]] {
@@ -25,9 +28,36 @@ trait Wallet[F[_]] {
 // - java.nio.file.Files.exists
 // - java.nio.file.Paths.get
 final class FileWallet[F[_]: Sync](id: WalletId) extends Wallet[F] {
-  def balance: F[BigDecimal] = ???
-  def topup(amount: BigDecimal): F[Unit] = ???
-  def withdraw(amount: BigDecimal): F[Either[WalletError, Unit]] = ???
+
+  def balance: F[BigDecimal] = Sync[F].delay {
+      if (Files.exists(filePath(id))) {
+        BigDecimal(Files.readString(filePath(id)))
+      } else {
+        BigDecimal(0)
+      }
+    }
+
+  def topup(amount: BigDecimal): F[Unit] =
+    for {
+      currentValue <- balance
+      result <- Sync[F].delay(writeToFile(filePath(id), currentValue + amount))
+    } yield result
+
+  def withdraw(amount: BigDecimal): F[Either[WalletError, Unit]] = for {
+    currentValue <- balance
+    finalValue = currentValue - amount
+    _ <- Sync[F].delay(writeToFile(filePath(id),finalValue))
+  } yield {
+    if(finalValue < 0) Either.left(BalanceTooLow) else Either.right()
+  }
+
+  private def writeToFile(filePath: Path, value: BigDecimal): Unit = {
+    Files.write(filePath, value.toString.getBytes)
+    ()
+  }
+
+  private def filePath(id: String): Path = Paths.get(s"wallet${id}.txt")
+
 }
 
 object Wallet {
@@ -37,7 +67,7 @@ object Wallet {
   // Здесь нужно использовать обобщенную версию уже пройденного вами метода IO.delay,
   // вызывается она так: Sync[F].delay(...)
   // Тайпкласс Sync из cats-effect описывает возможность заворачивания сайд-эффектов
-  def fileWallet[F[_]: Sync](id: WalletId): F[Wallet[F]] = ???
+  def fileWallet[F[_]: Sync](id: WalletId): F[Wallet[F]] = Sync[F].delay(new FileWallet[F](id))
 
   type WalletId = String
 
