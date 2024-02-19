@@ -20,13 +20,13 @@ object subtyping{
    * С помощью типа IsSubtypeOf выразить отношение Car и Vehicle
    *
    */
-   val t1 = ???
+   val t1: IsSubtypeOf[Car, Vehicle]= ???
   /**
    *
    * С помощью типа IsSubtypeOf выразить отношение Car и Mustang
    *
    */
-   val t2 = ???
+   val t2: IsSubtypeOf[Mustang.type,Car] = ???
 
 
   /**
@@ -48,8 +48,8 @@ object subtyping{
 
 
 
-//  lazy val mustCompile1    = isInstanceOf[Car, Mustang.type](Mustang)
-//  lazy val mustCompile2    = isInstanceOf[Moto, Harley.type](Harley)
+  lazy val mustCompile1    = isInstanceOf[Car, Mustang.type](Mustang)
+  lazy val mustCompile2    = isInstanceOf[Moto, Harley.type](Harley)
 //  lazy val mustNotCompile1 = isInstanceOf[Mustang.type, Moto](Mustang)
 //  lazy val mustNotCompile2 = isInstanceOf[Harley.type, Car](Harley)
 
@@ -61,8 +61,8 @@ object subtyping{
 
 //  lazy val mustCompile3 = isInstanceOf[Box[Car], Box[Mustang.type]](???)
 //  lazy val mustCompile4 = isInstanceOf[Box[Vehicle], Box[Car]](???)
-//  lazy val mustNotCompile3 = isInstanceOf[Box[Car], Box[Vehicle]](???)
-//  lazy val mustNotCompile4 = isInstanceOf[Box[Harley.type], Box[Moto]](???)
+  lazy val mustNotCompile3 = isInstanceOf[Box[Car], Box[Vehicle]](???)
+  lazy val mustNotCompile4 = isInstanceOf[Box[Harley.type], Box[Moto]](???)
 
 
 

@@ -122,7 +122,10 @@ object pattern_matching{
    * 2. Все остальные
    */
 
-
+  alex match {
+    case Employee("Alex", _) => println("found")
+    case _ => ()
+  }
 
 
   /**
@@ -138,7 +141,10 @@ object pattern_matching{
    * 1. Имя должно начинаться с A
    * 2. Все остальные
    */
-
+  alex match {
+    case Employee(name, _) if name.startsWith("A") => println(name)
+    case _ => ()
+  }
 
   /**
    *

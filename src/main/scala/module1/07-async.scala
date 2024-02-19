@@ -265,20 +265,36 @@ object promise {
       p.future
     }
 
-    def flatMap[T, B](future: Future[T])(f: T => Future[B]): Future[B] = ???
+    def flatMap[T, B](future: Future[T])(f: T => Future[B]): Future[B] = {
+      val p = Promise[B]
+      future.onComplete{
+        case Failure(e) => p.failure(e)
+        case Success(value) => f(value).onComplete {
+          case Failure(e) => p.failure(e)
+          case Success(value) => p.trySuccess(value)
+        }(scala.concurrent.ExecutionContext.global)
+      }(scala.concurrent.ExecutionContext.global)
+      p.future
+    }
 
     def make[T](v: => T)(ec: ExecutionContext): Future[T] = {
-      ???
+      val p = Promise[T]
+      p.complete(Try(v))
+      p.future
     }
 
     def make[T](v: => T, timeout: Long): Future[T] = {
       val p = Promise[T]
       val timer = new Timer(true)
       val task = new TimerTask {
-        override def run(): Unit = ???
+        override def run(): Unit =
+          if (!p.isCompleted) {
+            p.failure(new Exception("Timeout!"))
+          }
       }
       timer.schedule(task, timeout)
-      ???
+      p.complete(Try(v))
+      p.future
     }
   }
 
