@@ -12,7 +12,9 @@ object higher_kinded_types{
     a.flatMap{ a => b.map((a, _))}
 
 
-  def tuplef[F[_], A, B](fa: F[A], fb: F[B]): F[(A, B)] = ???
+  def tuplef[F[_], A, B](fa: F[A], fb: F[B])(implicit bfa: F[A] => Bindable[F,A], bfb: F[B] => Bindable[F,B]) : F[(A, B)] = {
+    bfa(fa).flatMap(a => bfb(fb).map(b => (a,b)))
+  }
 
 
   trait Bindable[F[_], A] {
@@ -29,7 +31,11 @@ object higher_kinded_types{
     override def flatMap[B](f: A => Option[B]): Option[B] = opt.flatMap(f)
   }
 
-  def listBindable[A](list: List[A]): Bindable[List, A] = ???
+  def listBindable[A](list: List[A]): Bindable[List, A] = new Bindable[List, A] {
+    override def map[B](f: A => B): List[B] = list.map(f)
+
+    override def flatMap[B](f: A => List[B]): List[B] = list.flatMap(f)
+  }
 
 
 
@@ -44,7 +50,7 @@ object higher_kinded_types{
   val r4 = println(tupleBindable(listBindable(list1), listBindable(list2)))
 
 
-  lazy val r1 = println(tuplef(optA, optB))
-  lazy val r2 = println(tuplef(list1, list2))
+  lazy val r1 = println(tuplef(optA, optB)(optBindable, optBindable))
+  lazy val r2 = println(tuplef(list1, list2)(listBindable, listBindable))
 
 }
